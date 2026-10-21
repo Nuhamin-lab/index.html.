@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry Department | Resource and Inventory Tracking</title>
+<style>
+:root { --slate-dark:#1e293b; --slate-medium:#334155; --bg:#f8fafc; --text:#0f172a; --muted:#475569; --border:#cbd5e1; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:"Times New Roman",Times,serif; color:var(--text); background:var(--bg); font-size:14px; }
+button,input,select,textarea { font:inherit; }
+button { cursor:pointer; }
+.layout { min-height:100vh; display:flex; }
+.sidebar { width:250px; flex-shrink:0; background:var(--slate-dark); color:white; padding:24px 14px; display:flex; flex-direction:column; border-right:2px solid var(--text); }
+.brand { padding:0 10px 25px; border-bottom:1px solid #ffffff25; }
+.brand h2 { font-size:18px; margin:0 0 5px; font-weight:bold; letter-spacing:.5px; }
+.brand p { font-size:12px; color:#94a3b8; margin:0; font-style:italic; }
+.nav-title { color:#94a3b8; font-size:11px; font-weight:bold; letter-spacing:1px; margin:24px 10px 10px; }
+.nav-button { width:100%; text-align:left; color:#cbd5e1; background:transparent; border:0; border-radius:0; padding:12px 11px; margin:3px 0; font-size:14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #ffffff10; }
+.nav-button:hover,.nav-button.active { background:var(--slate-medium); color:white; }
+.nav-button.active { font-weight:bold; border-left:4px solid white; }
+.sidebar-foot { margin-top:auto; padding:18px 10px 0; border-top:1px solid #ffffff25; font-size:12px; color:#94a3b8; line-height:1.5; }
+.main { flex:1; min-width:0; display:flex; flex-direction:column; }
+.topbar { min-height:74px; background:white; border-bottom:2px solid var(--slate-dark); display:flex; align-items:center; justify-content:space-between; padding:12px 30px; gap:15px; }
+.topbar small { color:var(--muted); font-size:12px; }
+.topbar strong { display:block; font-size:16px; margin-top:4px; color:var(--slate-dark); }
+.content { padding:28px 30px; max-width:1600px; margin:auto; width:100%; flex:1; }
+.welcome { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:15px; }
+.eyebrow { color:var(--slate-dark); font-size:11px; letter-spacing:1px; font-weight:bold; }
+h1 { font-size:28px; margin:7px 0; color:var(--slate-dark); font-weight:bold; }
+.welcome p { margin:0; color:var(--muted); font-size:14px; font-style:italic; }
+.date-pill { background:white; border:1px solid var(--border); padding:11px 14px; font-size:13px; }
+.stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; margin-bottom:22px; }
+.stat { padding:18px; background:white; border:1px solid var(--border); min-width:0; }
+.stat-top { display:flex; justify-content:space-between; gap:6px; align-items:center; }
+.stat-label { font-size:13px; color:var(--muted); font-weight:bold; }
+.stat-number { display:block; font-size:32px; margin:13px 0 7px; font-weight:bold; color:var(--slate-dark); }
+.stat-note { font-size:12px; color:var(--muted); }
+.section-grid { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr); gap:20px; }
+.panel { background:white; border:1px solid var(--border); padding:20px; margin-bottom:20px; min-width:0; }
+.panel h2 { margin:0 0 17px; font-size:18px; color:var(--slate-dark); border-bottom:1px solid var(--border); padding-bottom:5px; }
+.btn { border:1px solid var(--slate-dark); border-radius:0; padding:10px 15px; background:var(--slate-dark); color:white; font-size:13px; font-weight:bold; }
+.btn:hover { background:var(--slate-medium); }
+.btn.secondary { background:white; color:var(--slate-dark); }
+.activity { display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--border); }
+.activity:last-child { border-bottom:0; }
+.activity strong { font-size:13px; color:var(--slate-dark); }
+.activity p { font-size:12px; color:var(--muted); margin:5px 0 0; }
+.page-view { display:none; }
+.page-view.active { display:block; }
+.toolbar { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; }
+.toolbar input { flex:1; min-width:180px; }
+input,select,textarea { width:100%; padding:10px 11px; border:1px solid var(--border); background:white; color:var(--text); font-size:13px; }
+label { display:block; font-size:12px; font-weight:bold; color:var(--slate-dark); margin:12px 0 6px; }
+.form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 14px; }
+.form-grid .full { grid-column:1 / -1; }
+.table-wrap { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:13px; }
+th { text-align:left; background:#f1f5f9; color:var(--text); font-size:11px; text-transform:uppercase; font-weight:bold; border:1px solid var(--border); }
+th,td { padding:12px 10px; border:1px solid var(--border); vertical-align:top; }
+td strong { display:block; margin-bottom:5px; }
+.muted { color:var(--muted); font-size:12px; line-height:1.6; }
+.pill { display:inline-block; padding:4px 8px; font-size:11px; font-weight:bold; border:1px solid var(--border); background:#f1f5f9; }
+.pill.good { background:#dcfce7; color:#15803d; border-color:#bbf7d0; }
+.pill.pending { background:#fef9c3; color:#a16207; border-color:#fef08a; }
+.pill.damaged { background:#fee2e2; color:#b91c1c; border-color:#fca5a5; }
+.footer { color:var(--muted); text-align:center; font-size:11px; padding:15px 0 25px; border-top:1px solid var(--border); margin-top:4px; }
+.empty-state { padding:18px; text-align:center; color:var(--muted); }
+@media (max-width:900px) { .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } .section-grid { grid-template-columns:1fr; } }
+@media (max-width:640px) { .layout { display:block; } .sidebar { width:100%; padding:16px; } .brand { padding-bottom:14px; } .nav-title { margin-top:15px; } .sidebar-foot { margin-top:14px; } .topbar { padding:12px 18px; } .content { padding:20px 16px; } .stats { grid-template-columns:1fr 1fr; gap:10px; } .stat { padding:13px; } .stat-number { font-size:26px; } h1 { font-size:24px; } .form-grid { grid-template-columns:1fr; } .form-grid .full { grid-column:auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+	<aside class="sidebar">
+		<div class="brand"><h2>Chemistry Department</h2><p>Internal Administration Console</p></div>
+		<span class="nav-title">REGISTRY CONTROL</span>
+		<button class="nav-button active" data-page="dashboard" onclick="switchPage('dashboard',this)">Dashboard Overview</button>
+		<button class="nav-button" data-page="books" onclick="switchPage('books',this)">Textbook Tracking</button>
+		<button class="nav-button" data-page="breakages" onclick="switchPage('breakages',this)">Equipment Breakage Logs</button>
+		<div class="sidebar-foot"><strong>Academic Year: 2026</strong><br><small>System Status: Active</small></div>
+	</aside>
+
+	<main class="main">
+		<header class="topbar"><div><small>Authorized User Account</small><strong>Mr. Timothy (Faculty Head)</strong></div></header>
+		<div class="content">
+			<section id="dashboard" class="page-view active">
+				<div class="welcome"><div><span class="eyebrow">MANAGEMENT SYSTEM</span><h1>Administrative Overview</h1><p>Department logging operations for textbook accountability and laboratory asset management.</p></div><div class="date-pill">Wednesday, 21 October 2026</div></div>
+				<div class="stats">
+					<div class="stat"><div class="stat-top"><span class="stat-label">Books Checked Out</span></div><span class="stat-number" id="checkedOutCount">42</span><span class="stat-note">Issued to AS/A2 students</span></div>
+					<div class="stat"><div class="stat-top"><span class="stat-label">Overdue Textbooks</span></div><span class="stat-number" style="color:#b91c1c">5</span><span class="stat-note">Return deadlines passed</span></div>
+					<div class="stat"><div class="stat-top"><span class="stat-label">Reported Breakages</span></div><span class="stat-number" id="breakageCount">14</span><span class="stat-note">Total incidents this term</span></div>
+					<div class="stat"><div class="stat-top"><span class="stat-label">Unresolved Liabilities</span></div><span class="stat-number" style="color:#a16207">3</span><span class="stat-note">Awaiting replacement charges</span></div>
+				</div>
+				<div class="section-grid">
+					<div class="panel"><h2>Recent Administrative Incidents</h2><div id="recentActivity"><div class="activity"><div><strong>A. Mensah — 100ml Glass Beaker Shattered</strong><p>Occurred during titration practical. Liability assigned; awaiting replacement asset confirmation.</p></div></div><div class="activity"><div><strong>K. Diallo — Cambridge International AS Chemistry Textbook</strong><p>Successfully returned. Condition verified as: Good. Inventory record reconciled.</p></div></div></div></div>
+					<div class="panel"><h2>Quick Actions</h2><p class="muted">Use the registry controls to issue textbooks, record returns, or log laboratory equipment breakages.</p><button class="btn" onclick="switchPage('books')">Issue a textbook</button> <button class="btn secondary" onclick="switchPage('breakages')">Log breakage</button></div>
+				</div>
+			</section>
+
+			<section id="books" class="page-view">
+				<h1>Textbook Allocation Log</h1><p class="muted">Monitor textbook assignments and the physical state of curriculum assets distributed to students.</p>
+				<div class="panel"><h2>Issue New Textbook Assignment</h2>
+					<form id="bookForm" class="form-grid">
+						<div><label for="studentName">Student Full Name</label><input id="studentName" required placeholder="e.g., John Doe"></div>
+						<div><label for="studentClass">Class / Block</label><input id="studentClass" required placeholder="e.g., AS Chemistry"></div>
+						<div class="full"><label for="bookTitle">Textbook Title</label><input id="bookTitle" required placeholder="Enter textbook title"></div>
+						<div><label for="bookCondition">Condition at Issue</label><select id="bookCondition"><option>Good</option><option>Fair</option><option>Damaged</option></select></div>
+						<div><label for="dueDate">Return Due Date</label><input id="dueDate" type="date" required></div>
+						<div class="full"><button class="btn" type="submit">Record Assignment</button></div>
+					</form>
+				</div>
+				<div class="panel"><h2>Current Textbook Records</h2><div class="toolbar"><input id="bookSearch" type="search" placeholder="Search student, class, or textbook..." aria-label="Search textbook records"></div>
+					<div class="table-wrap"><table><thead><tr><th>Student</th><th>Class</th><th>Textbook</th><th>Condition</th><th>Due Date</th><th>Status</th></tr></thead><tbody id="bookRows"><tr><td><strong>K. Diallo</strong></td><td>AS Chemistry</td><td>Cambridge International AS Chemistry</td><td>Good</td><td>—</td><td><span class="pill good">Returned</span></td></tr></tbody></table><p id="bookEmpty" class="empty-state" hidden>No textbook records match your search.</p></div>
+				</div>
+			</section>
+
+			<section id="breakages" class="page-view">
+				<h1>Equipment Breakage Logs</h1><p class="muted">Document damaged or broken laboratory equipment and track follow-up responsibility.</p>
+				<div class="panel"><h2>Report Equipment Breakage</h2>
+					<form id="breakageForm" class="form-grid">
+						<div><label for="reporterName">Student / Reporter Name</label><input id="reporterName" required placeholder="Enter full name"></div>
+						<div><label for="equipmentName">Equipment</label><input id="equipmentName" required placeholder="e.g., 100ml glass beaker"></div>
+						<div><label for="incidentDate">Incident Date</label><input id="incidentDate" type="date" required></div>
+						<div><label for="liability">Liability Status</label><select id="liability"><option>Under review</option><option>Assigned</option><option>No charge</option></select></div>
+						<div class="full"><label for="incidentDetails">Incident Details</label><textarea id="incidentDetails" rows="3" placeholder="Describe what happened"></textarea></div>
+						<div class="full"><button class="btn" type="submit">Save Breakage Report</button></div>
+					</form>
+				</div>
+				<div class="panel"><h2>Incident Register</h2><div class="toolbar"><input id="breakageSearch" type="search" placeholder="Search reporter or equipment..." aria-label="Search breakage reports"></div>
+					<div class="table-wrap"><table><thead><tr><th>Reported By</th><th>Equipment</th><th>Date</th><th>Details</th><th>Liability</th></tr></thead><tbody id="breakageRows"><tr><td><strong>A. Mensah</strong></td><td>100ml Glass Beaker</td><td>—</td><td>Shattered during titration practical.</td><td><span class="pill pending">Assigned</span></td></tr></tbody></table><p id="breakageEmpty" class="empty-state" hidden>No breakage reports match your search.</p></div>
+				</div>
+			</section>
+			<footer class="footer">Chemistry Department Resource and Inventory Tracking</footer>
+		</div>
+	</main>
+</div>
+<script>
+function switchPage(page, button) {
+	document.querySelectorAll('.page-view').forEach(view => view.classList.toggle('active', view.id === page));
+	document.querySelectorAll('.nav-button').forEach(item => item.classList.toggle('active', item.dataset.page === page));
+	if (button) button.blur();
+}
+
+function addRow(tbody, values, badgeClass, badgeIndex) {
+	const row = document.createElement('tr');
+	values.forEach((value, index) => {
+		const cell = document.createElement('td');
+		if (index === badgeIndex) {
+			const badge = document.createElement('span');
+			badge.className = 'pill ' + badgeClass;
+			badge.textContent = value;
+			cell.appendChild(badge);
+		} else {
+			cell.textContent = value || '—';
+		}
+		row.appendChild(cell);
+	});
+	tbody.prepend(row);
+}
+
+document.getElementById('bookForm').addEventListener('submit', event => {
+	event.preventDefault();
+	const form = event.currentTarget;
+	const due = new Date(document.getElementById('dueDate').value + 'T00:00:00');
+	const dueText = due.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+	addRow(document.getElementById('bookRows'), [document.getElementById('studentName').value.trim(), document.getElementById('studentClass').value.trim(), document.getElementById('bookTitle').value.trim(), document.getElementById('bookCondition').value, dueText, 'Checked out'], 'pending', 5);
+	document.getElementById('checkedOutCount').textContent = Number(document.getElementById('checkedOutCount').textContent) + 1;
+	form.reset();
+});
+
+document.getElementById('breakageForm').addEventListener('submit', event => {
+	event.preventDefault();
+	const form = event.currentTarget;
+	const date = new Date(document.getElementById('incidentDate').value + 'T00:00:00');
+	const dateText = date.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+	const liability = document.getElementById('liability').value;
+	addRow(document.getElementById('breakageRows'), [document.getElementById('reporterName').value.trim(), document.getElementById('equipmentName').value.trim(), dateText, document.getElementById('incidentDetails').value.trim(), liability], liability === 'No charge' ? 'good' : 'pending', 4);
+	document.getElementById('breakageCount').textContent = Number(document.getElementById('breakageCount').textContent) + 1;
+	const activity = document.createElement('div');
+	activity.className = 'activity';
+	const summary = document.createElement('div');
+	const title = document.createElement('strong');
+	title.textContent = document.getElementById('reporterName').value.trim() + ' — ' + document.getElementById('equipmentName').value.trim();
+	const detail = document.createElement('p');
+	detail.textContent = document.getElementById('incidentDetails').value.trim() || 'Breakage report recorded; liability status: ' + liability + '.';
+	summary.append(title, detail); activity.appendChild(summary);
+	document.getElementById('recentActivity').prepend(activity);
+	form.reset();
+});
+
+function setupFilter(inputId, rowsId, emptyId) {
+	document.getElementById(inputId).addEventListener('input', event => {
+		const query = event.target.value.toLowerCase();
+		const rows = Array.from(document.getElementById(rowsId).rows);
+		let visible = 0;
+		rows.forEach(row => { const match = row.textContent.toLowerCase().includes(query); row.hidden = !match; if (match) visible++; });
+		document.getElementById(emptyId).hidden = visible !== 0;
+	});
+}
+setupFilter('bookSearch', 'bookRows', 'bookEmpty');
+setupFilter('breakageSearch', 'breakageRows', 'breakageEmpty');
+</script>
+</body>
+</html>
